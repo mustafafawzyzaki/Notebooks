@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Obesity Classification | Interactive Project Presentation</title>
+<style>
+:root{
+  --blue:#0077B6; --green:#00B894; --teal:#00C2A8; --light-blue:#90E0EF;
+  --light-green:#B7F8DB; --red:#FF3B30; --dark:#023047; --ink:#24454D;
+  --muted:#48636B; --bg:#F7FFFC; --card:#FFFFFF; --line:#BFEFE1;
+  --soft:#EAF6FF; --soft2:#F1FFFA; --cream:#FFF4F4;
+  --shadow:0 18px 45px rgba(0,119,182,.14); --radius:26px;
+}
+[data-theme="dark"]{
+  --bg:#061C25; --card:#0D2A36; --ink:#DDF8F3; --muted:#A7C4C6; --dark:#EAF6FF;
+  --line:#165A61; --soft:#123945; --soft2:#0D332C; --cream:#351B22;
+  --shadow:0 18px 45px rgba(0,0,0,.32);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at top left, rgba(144,224,239,.35), transparent 35%), linear-gradient(135deg,var(--bg),#EEF9FF 72%,var(--cream));overflow:hidden}
+body{transition:.25s background,.25s color}
+.deck{height:100vh;width:100vw;display:grid;grid-template-rows:72px 1fr 66px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 26px;border-bottom:1px solid rgba(0,119,182,.12);background:rgba(255,255,255,.35);backdrop-filter:blur(12px);z-index:5}
+.brand{display:flex;gap:12px;align-items:center;font-weight:900;color:var(--dark);letter-spacing:.2px}.logo{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--green),var(--red));box-shadow:0 8px 18px rgba(0,184,148,.25)}
+.controls{display:flex;gap:10px;align-items:center}.btn{border:1px solid var(--line);background:var(--card);color:var(--dark);border-radius:999px;padding:10px 14px;font-weight:800;cursor:pointer;box-shadow:0 3px 12px rgba(18,52,59,.06);transition:.2s}.btn:hover{transform:translateY(-1px);border-color:var(--green)}
+.progress-wrap{width:180px;height:8px;background:var(--soft);border-radius:999px;overflow:hidden;border:1px solid var(--line)}.progress{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green),var(--red));border-radius:999px;transition:.25s}
+.stage{position:relative;overflow:hidden;padding:28px clamp(20px,4vw,60px)}
+.slide{display:none;height:100%;max-width:1220px;margin:0 auto;animation:fade .28s ease}.slide.active{display:block}@keyframes fade{from{opacity:.2;transform:translateY(10px)}to{opacity:1;transform:none}}
+.shell{height:100%;border:1.5px solid var(--line);border-radius:var(--radius);background:linear-gradient(135deg,rgba(255,255,255,.86),rgba(241,255,250,.70));box-shadow:var(--shadow);padding:clamp(22px,3vw,40px);overflow:auto;position:relative}.shell::-webkit-scrollbar{width:8px}.shell::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px}
+[data-theme="dark"] .shell{background:linear-gradient(135deg,rgba(13,42,54,.92),rgba(13,51,44,.65))}
+.eyebrow{color:var(--green);font-size:13px;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}.title{font-size:clamp(34px,5.3vw,66px);line-height:1.02;margin:0;color:var(--dark);font-weight:950}.subtitle{font-size:clamp(16px,1.6vw,22px);line-height:1.6;color:var(--muted);max-width:900px;margin:18px 0 0}.slide-title{font-size:clamp(28px,3vw,42px);line-height:1.05;margin:0;color:var(--dark);font-weight:950}.slide-copy{font-size:16px;line-height:1.7;color:var(--muted);max-width:920px;margin:12px 0 18px}
+.grid{display:grid;gap:18px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:850px){.grid.two,.grid.three,.grid.four{grid-template-columns:1fr}.deck{grid-template-rows:72px 1fr 86px}.progress-wrap{display:none}.topbar{padding:12px 14px}.controls .label{display:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 6px 18px rgba(18,52,59,.06)}.metric{font-size:34px;font-weight:950;color:var(--dark);margin:8px 0 2px}.small{font-size:13px;color:var(--muted);line-height:1.55}.tag{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border-radius:999px;background:var(--soft);border:1px solid var(--line);color:var(--dark);font-weight:850;font-size:12px;margin:4px}.pill{display:inline-block;padding:9px 13px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--blue);font-weight:900}
+.workflow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:20px}.step{position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;min-height:108px}.step .num{color:var(--blue);font-weight:950;font-size:12px}.step b{display:block;color:var(--dark);margin:5px 0;font-size:15px}.step.deploy{grid-column:1/-1;border:1.8px solid var(--green);background:linear-gradient(135deg,var(--soft2),var(--soft),var(--cream))}.deploy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:12px}
+.bar-row{display:grid;grid-template-columns:170px 1fr 64px;gap:12px;align-items:center;margin:12px 0}.bar-label{font-weight:850;color:var(--dark);font-size:13px}.bar-track{height:14px;background:var(--soft);border-radius:999px;overflow:hidden;border:1px solid var(--line)}.bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--green));transition:.35s}.bar-val{font-weight:850;color:var(--muted);font-size:12px;text-align:right}
+.table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:16px}.table th,.table td{padding:12px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}.table th{color:var(--blue);background:var(--soft);font-weight:950}.table tr:last-child td{border-bottom:0}
+.chart-select{display:flex;gap:10px;align-items:center;margin:14px 0 18px;flex-wrap:wrap}select{border:1px solid var(--line);border-radius:999px;padding:10px 14px;color:var(--dark);background:var(--card);font-weight:850}
+.footer{display:flex;align-items:center;justify-content:space-between;padding:10px 26px;background:rgba(255,255,255,.32);backdrop-filter:blur(12px);border-top:1px solid rgba(0,119,182,.12)}.dots{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}.dot{width:10px;height:10px;border-radius:999px;background:var(--line);cursor:pointer}.dot.active{width:28px;background:linear-gradient(90deg,var(--blue),var(--green))}.nav{display:flex;gap:10px}.counter{font-weight:900;color:var(--muted)}
+.note{display:none;margin-top:14px;padding:14px;border-left:5px solid var(--green);background:var(--soft2);border-radius:14px;color:var(--muted);line-height:1.6}.note.show{display:block}.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:900px){.compare-grid{grid-template-columns:1fr}}
+.big-number{font-size:54px;font-weight:950;color:var(--dark);line-height:1}.accent{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}
+@media print{body{overflow:visible}.deck{display:block;height:auto}.topbar,.footer{display:none}.stage{overflow:visible;padding:0}.slide{display:block;page-break-after:always;height:100vh;padding:20px}.shell{box-shadow:none;height:calc(100vh - 40px);overflow:hidden}.note{display:block}}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+  <header class="topbar">
+    <div class="brand"><div class="logo"></div><div>Obesity ML Project <span class="label" style="color:var(--muted);font-weight:700">Interactive Presentation</span></div></div>
+    <div class="controls">
+      <div class="progress-wrap"><div class="progress" id="progress"></div></div>
+      <button class="btn" id="notesBtn">Notes</button>
+      <button class="btn" id="themeBtn">Dark</button>
+      <button class="btn" onclick="window.print()">Print</button>
+    </div>
+  </header>
+
+  <main class="stage" id="stage">
+    <section class="slide active"><div class="shell">
+      <div class="eyebrow">Medical Machine Learning Notebook</div>
+      <h1 class="title">Obesity Classification<br><span class="accent">Modeling Project</span></h1>
+      <p class="subtitle">An end-to-end interactive summary of the final notebook: target grouping, EDA, validation-based model selection, BMI label-proxy analysis, Top 10 feature reduction, and final test evaluation.</p>
+      <div class="grid four" style="margin-top:34px">
+        <div class="card"><div class="small">Selected Model</div><div class="metric">XGBoost</div><div class="small">Best validation Macro F1</div></div>
+        <div class="card"><div class="small">Validation Macro F1</div><div class="metric">0.9139</div><div class="small">Model selection metric</div></div>
+        <div class="card"><div class="small">Final Test Macro F1</div><div class="metric">0.9080</div><div class="small">Reserved test set result</div></div>
+        <div class="card"><div class="small">Top Feature Signal</div><div class="metric">BMI</div><div class="small">Label-proxy sensitive</div></div>
+      </div>
+      <div class="note">Opening message: the project is not only about high accuracy. It also shows methodological awareness through validation selection, BMI label-proxy analysis, and final reserved test evaluation.</div>
+    </div></section>
+
+    <section class="slide"><div class="shell">
+      <div class="eyebrow">Project Workflow</div>
+      <h2 class="slide-title">From raw data to deployable model</h2>
+      <p class="slide-copy">The notebook follows a clear sequence: descriptive understanding first, then preprocessing, validation-based model selection, interpretability, and final deployment readiness.</p>
+      <div class="workflow">
+        <div class="step"><span class="num">01</span><b>Data Loading</b><span class="small">Inspect shape, columns, duplicates and id.</span></div>
+        <div class="step"><span class="num">02</span><b>BMI Engineering</b><span class="small">Create BMI from height and weight.</span></div>
+        <div class="step"><span class="num">03</span><b>Target Grouping</b><span class="small">Convert 7 labels to 4 classes.</span></div>
+        <div class="step"><span class="num">04</span><b>EDA</b><span class="small">Univariate then bivariate and multivariate visuals.</span></div>
+        <div class="step"><span class="num">05</span><b>Preprocessing</b><span class="small">Robust scaling, ordinal and one-hot encoding.</span></div>
+        <div class="step"><span class="num">06</span><b>Modeling</b><span class="small">Compare LR, RF, GB, SVC and XGBoost.</span></div>
+        <div class="step"><span class="num">07</span><b>Tuning</b><span class="small">RandomizedSearchCV with Macro F1.</span></div>
+        <div class="step"><span class="num">08</span><b>Final Evaluation</b><span class="small">Reserved test set used once.</span></div>
+        <div class="step deploy"><span class="num">09 · Final Stage</span><b>Model Deployment</b><span class="small">Selected pipeline is ready for unseen patient data.</span><div class="deploy-grid"><span class="tag">Input: unseen data</span><span class="tag">Pipeline: preprocessing + model</span><span class="tag">Output: obesity class</span><span class="tag">Future use: decision support</span></div></div>
+      </div>
+      <div class="note">Stress the methodological order: EDA is descriptive only, while model selection happens on validation data.</div>
+    </div></section>
+
+    <section class="slide"><div class="shell">
+      <div class="eyebrow">Target Strategy</div>
+      <h2 class="slide-title">Why group 7 classes into 4?</h2>
+      <p class="slide-copy">The original labels were detailed obesity levels. For the project goal, a simpler and clinically clearer target improves interpretability and reduces unnecessary target fragmentation.</p>
+      <div class="grid two">
+        <div class="card"><h3>Original target</h3><p class="small">Insufficient Weight, Normal Weight, Overweight Level I/II, Obesity Type I/II/III.</p><div class="tag">7 classes</div></div>
+        <div class="card"><h3>Grouped target</h3><p class="small">Underweight, Normal, Overweight, Obesity.</p><div class="tag">4 classes</div></div>
+      </div>
+      <div class="grid three" style="margin-top:18px">
+        <div class="card"><b>Cleaner decision level</b><p class="small">The model predicts a broader weight status rather than fine-grained obesity stages.</p></div>
+        <div class="card"><b>Real-world logic</b><p class="small">From obesity onward, clinical assessment or referral is generally needed.</p></div>
+        <div class="card"><b>More stable learning</b><p class="small">Grouping reduces class fragmentation and improves evaluation stability.</p></div>
+      </div>
+      <div class="note">Do not claim that detailed obesity stages are medically useless in general. Say they are less necessary for this model's classification goal.</div>
+    </div></section>
+
+    <section class="slide"><div class="shell">
+      <div class="eyebrow">EDA Design</div>
+      <h2 class="slide-title">EDA order: univariate first, then target relationships</h2>
+      <p class="slide-copy">The EDA section is descriptive only and is not used to remove features or select models. It is structured to match a standard statistical workflow.</p>
+      <div class="grid three">
+        <div class="card"><div class="big-number blue">1</div><h3>Univariate</h3><p class="small">Target distribution, numerical distributions, categorical distributions.</p></div>
+        <div class="card"><div class="big-number accent">2</div><h3>Bivariate</h3><p class="small">Numerical and categorical features compared against target classes.</p></div>
+        <div class="card"><div class="big-number red">3</div><h3>Multivariate</h3><p class="small">Age vs BMI scatter and numerical profile heatmap by target.</p></div>
+      </div>
+      <div class="card" style="margin-top:18px"><b>EDA methodology note</b><p class="small">EDA is performed for descriptive understanding only. Modeling decisions are made later using train, validation and test splits.</p></div>
+      <div class="note">This slide answers the professor's point: univariate analysis appears before multivariate visualizations.</div>
+    </div></section>
+
+    <section class="slide"><div class="shell">
+      <div class="eyebrow">Modeling Methodology</div>
+      <h2 class="slide-title">Train, validation and test were separated</h2>
+      <p class="slide-copy">The final notebook avoids choosing models on the test set. Models are compared on validation data, then the selected model is evaluated once on the reserved test set.</p>
+      <div class="compare-grid">
+        <div class="card"><h3>Validation set</h3><p class="small">Used for model comparison, final model decision, permutation importance and the Top 10 feature subset experiment.</p><span class="tag">Selection stage</span></div>
+        <div class="card"><h3>Test set</h3><p class="small">Reserved for final reporting only after the final model is chosen and retrained on train + validation.</p><span class="tag">Final evaluation stage</span></div>
+      </div>
+      <div class="grid three" style="margin-top:18px">
+        <div class="card"><b>Main metric</b><div class="metric">Macro F1</div><p class="small">Chosen because target classes are imbalanced.</p></div>
+        <div class="card"><b>Supporting metric</b><div class="metric">Accuracy</div><p class="small">Reported but not used alone for selection.</p></div>
+        <div class="card"><b>Diagnostic</b><div class="metric">Gap</div><p class="small">Learning curves used to detect overfitting behavior.</p></div>
+      </div>
+      <div class="note">The critical methodological upgrade: final test scores are not used to choose the model.</div>
+    </div></section>
+
+    <section class="slide"><div class="shell">
+      <div class="eyebrow">Interactive Model Comparison</div>
+      <h2 class="slide-title">Validation results across models</h2>
+      <p class="slide-copy">Choose a metric to compare all models. The final decision is based mainly on validation Macro F1.</p>
+      <div class="chart-select"><label for="metricSelect"><b>Metric:</b></label><select id="metricSelect"><option>Macro F1</option><option>Accuracy</option><option>Macro Precision</option><option>Macro Recall</option><option>Weighted F1</option></select></div>
+      <div id="modelBars"></div>
+      <div class="note">XGBoost ranked first by validation Macro F1, so it was selected automatically as the final model.</div>
+    </div></section>
+
+    <section class="slide"><div class="shell">
+      <div class="eyebrow">Final Model Decision</div>
+      <h2 class="slide-title">Selected model: <span class="accent">XGBoost</span></h2>
+      <p class="slide-copy">XGBoost achieved the highest validation Macro F1, so no manual override was needed.</p>
+      <div class="grid four">
+        <div class="card"><div class="small">Validation Accuracy</div><div class="metric">0.9299</div></div>
+        <div class="card"><div class="small">Validation Macro F1</div><div class="metric">0.9139</div></div>
+        <div class="card"><div class="small">Validation Weighted F1</div><div class="metric">0.9304</div></div>
+        <div class="card"><div class="small">Gap from validation-best</div><div class="metric">0.0000</div></div>
+      </div>
+      <div class="card" style="margin-top:18px"><b>Selection rule</b><p class="small">Select the model with the best Validation Macro F1. Use accuracy and learning curves only as supporting diagnostics, not as the sole criterion.</p></div>
+      <div class="note">Earlier there was a question about RF vs XGBoost. The final notebook shows XGBoost is validation-best, so the decision is consistent.</div>
+    </div></section>
+
+    <section class="slide"><div class="shell">
+      <div class="eyebrow">BMI Label-Proxy</div>
+      <h2 class="slide-title">BMI is powerful, but must be interpreted carefully</h2>
+      <p class="slide-copy">BMI is not test-set leakage, but it acts as a strong label-proxy because obesity classes are related to BMI-defined weight categories.</p>
+      <div class="grid three">
+        <div class="card"><div class="small">BMI-only model</div><div class="metric">0.8955</div><p class="small">Validation Macro F1</p></div>
+        <div class="card"><div class="small">Without BMI</div><div class="metric red">0.7367</div><p class="small">Validation Macro F1</p></div>
+        <div class="card"><div class="small">Full XGBoost</div><div class="metric accent">0.9139</div><p class="small">Validation Macro F1</p></div>
+      </div>
+      <div id="bmiBars" style="margin-top:20px"></div>
+      <div class="card" style="margin-top:18px"><b>Interpretation</b><p class="small">The model should be described as a BMI-assisted obesity classifier, not a pure lifestyle-only prediction model.</p></div>
+      <div class="note">Use the term label-proxy or target-definition signal, not traditional test leakage.</div>
+    </div></section>
+
+    <section class="slide"><div class="shell">
+      <div class="eyebrow">Feature Reduction</div>
+      <h2 class="slide-title">Top 10 features kept near-full performance</h2>
+      <p class="slide-copy">The Top 10 feature subset was selected from permutation importance of the selected final model.</p>
+      <div class="grid three">
+        <div class="card"><div class="small">Full feature Macro F1</div><div class="metric">0.9139</div></div>
+        <div class="card"><div class="small">Top 10 Macro F1</div><div class="metric">0.9130</div></div>
+        <div class="card"><div class="small">Difference</div><div class="metric">-0.0009</div></div>
+      </div>
+      <div class="card" style="margin-top:18px"><b>Selected top 10</b><div style="margin-top:10px" id="featureTags"></div></div>
+      <div class="note">This slide supports model parsimony: a smaller subset can keep almost identical validation performance.</div>
+    </div></section>
+
+    <section class="slide"><div class="shell">
+      <div class="eyebrow">Key Factors</div>
+      <h2 class="slide-title">Top predictive signals</h2>
+      <p class="slide-copy">Permutation importance highlights BMI as the strongest signal, followed by hydration, age and daily behavior indicators.</p>
+      <div id="featureBars"></div>
+      <div class="note">Clicking around the live report is not needed here: the presentation embeds the core findings directly.</div>
+    </div></section>
+
+    <section class="slide"><div class="shell">
+      <div class="eyebrow">Final Test Result</div>
+      <h2 class="slide-title">Reserved test set evaluation</h2>
+      <p class="slide-copy">After selection, the model was retrained on train + validation and evaluated once on the reserved test set.</p>
+      <div class="grid three">
+        <div class="card"><div class="small">Test Accuracy</div><div class="metric">0.9256</div></div>
+        <div class="card"><div class="small">Test Macro F1</div><div class="metric accent">0.9080</div></div>
+        <div class="card"><div class="small">Test Weighted F1</div><div class="metric">0.9262</div></div>
+      </div>
+      <div class="card" style="margin-top:18px"><b>Why this matters</b><p class="small">The close validation and test Macro F1 values suggest that the selected model generalizes consistently to unseen data from the held-out split.</p></div>
+      <div class="note">Validation Macro F1 was 0.9139 and final test Macro F1 was 0.9080. The drop is small and acceptable.</div>
+    </div></section>
+
+    <section class="slide"><div class="shell">
+      <div class="eyebrow">Conclusion</div>
+      <h2 class="slide-title">Final takeaways</h2>
+      <div class="grid two">
+        <div class="card"><h3>Methodological takeaway</h3><p class="small">The project uses validation for selection and preserves the test set for final reporting, which makes the evaluation stronger academically.</p></div>
+        <div class="card"><h3>Model takeaway</h3><p class="small">XGBoost is the selected final model, achieving Validation Macro F1 = 0.9139 and Test Macro F1 = 0.9080.</p></div>
+        <div class="card"><h3>Feature takeaway</h3><p class="small">The Top 10 feature model gives almost the same validation Macro F1 as the full feature model.</p></div>
+        <div class="card"><h3>Interpretation takeaway</h3><p class="small">BMI is a dominant label-proxy, so the model is best interpreted as BMI-assisted.</p></div>
+      </div>
+      <div class="card" style="margin-top:18px;background:linear-gradient(135deg,var(--soft2),var(--soft))"><h3>Deployment-ready idea</h3><p class="small">The selected pipeline can predict obesity class for unseen patient-like records, while the report should clearly state the role of BMI as a strong target-definition signal.</p></div>
+      <div class="note">Final speaking point: the project is strong because it combines performance, interpretability and methodological caution.</div>
+    </div></section>
+  </main>
+
+  <footer class="footer">
+    <div class="nav"><button class="btn" id="prevBtn">← Previous</button><button class="btn" id="nextBtn">Next →</button></div>
+    <div class="dots" id="dots"></div>
+    <div class="counter" id="counter"></div>
+  </footer>
+</div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let current=0;let notesOn=false;
+const dots=document.getElementById('dots');
+slides.forEach((_,i)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>go(i);dots.appendChild(d)});
+function update(){slides.forEach((s,i)=>s.classList.toggle('active',i===current));[...dots.children].forEach((d,i)=>d.classList.toggle('active',i===current));document.getElementById('counter').textContent=`${current+1} / ${slides.length}`;document.getElementById('progress').style.width=`${((current+1)/slides.length)*100}%`;document.querySelectorAll('.note').forEach(n=>n.classList.toggle('show',notesOn));}
+function go(i){current=Math.max(0,Math.min(slides.length-1,i));update()}
+document.getElementById('nextBtn').onclick=()=>go(current+1);document.getElementById('prevBtn').onclick=()=>go(current-1);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')go(current+1);if(e.key==='ArrowLeft')go(current-1);if(e.key.toLowerCase()==='n'){notesOn=!notesOn;update();}});
+document.getElementById('notesBtn').onclick=()=>{notesOn=!notesOn;update()};
+document.getElementById('themeBtn').onclick=()=>{const root=document.documentElement;const dark=root.getAttribute('data-theme')==='dark';root.setAttribute('data-theme',dark?'light':'dark');document.getElementById('themeBtn').textContent=dark?'Dark':'Light'};
+const modelData=[
+ {Model:'XGBoost',Accuracy:.9299,'Macro Precision':.9100,'Macro Recall':.9180,'Macro F1':.9139,'Weighted F1':.9304},
+ {Model:'Tuned XGBoost',Accuracy:.9289,'Macro Precision':.9093,'Macro Recall':.9179,'Macro F1':.9134,'Weighted F1':.9295},
+ {Model:'Tuned Random Forest',Accuracy:.9275,'Macro Precision':.9101,'Macro Recall':.9172,'Macro F1':.9134,'Weighted F1':.9281},
+ {Model:'Random Forest',Accuracy:.9258,'Macro Precision':.9096,'Macro Recall':.9116,'Macro F1':.9105,'Weighted F1':.9262},
+ {Model:'Gradient Boosting',Accuracy:.9261,'Macro Precision':.9060,'Macro Recall':.9143,'Macro F1':.9100,'Weighted F1':.9266},
+ {Model:'SVC',Accuracy:.9126,'Macro Precision':.8857,'Macro Recall':.8984,'Macro F1':.8916,'Weighted F1':.9132},
+ {Model:'Logistic Regression',Accuracy:.9063,'Macro Precision':.8757,'Macro Recall':.8900,'Macro F1':.8820,'Weighted F1':.9068}
+];
+const features=['BMI','CH2O','Age','TUE','FAF','NCP','FCVC','FAVC','family_history_with_overweight','CALC'];
+const featureValues=[.094,.019,.017,.012,.011,.010,.008,.007,.006,.005];
+function bars(containerId, rows, metric){const el=document.getElementById(containerId); if(!el)return; const max=Math.max(...rows.map(r=>r[metric])); el.innerHTML=rows.map(r=>{let w=Math.max(3, r[metric]/max*100);return `<div class="bar-row"><div class="bar-label">${r.Model}</div><div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div><div class="bar-val">${r[metric].toFixed(4)}</div></div>`}).join('')}
+const metricSelect=document.getElementById('metricSelect'); if(metricSelect){metricSelect.onchange=()=>bars('modelBars',modelData,metricSelect.value);bars('modelBars',modelData,'Macro F1')}
+const bmiRows=[{Model:'BMI Only',Value:.8955},{Model:'Without BMI',Value:.7367},{Model:'Full XGBoost',Value:.9139}];
+function simpleBars(){const el=document.getElementById('bmiBars'); if(!el)return; const max=.9139; el.innerHTML=bmiRows.map(r=>`<div class="bar-row"><div class="bar-label">${r.Model}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(3,r.Value/max*100)}%;background:linear-gradient(90deg,var(--blue),${r.Model==='Without BMI'?'var(--red)':'var(--green)'})"></div></div><div class="bar-val">${r.Value.toFixed(4)}</div></div>`).join('')}
+simpleBars();
+const ft=document.getElementById('featureTags'); if(ft) ft.innerHTML=features.map(f=>`<span class="tag">${f}</span>`).join('');
+const fb=document.getElementById('featureBars'); if(fb){const max=Math.max(...featureValues); fb.innerHTML=features.map((f,i)=>`<div class="bar-row"><div class="bar-label">${f}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(4,featureValues[i]/max*100)}%;background:linear-gradient(90deg,var(--blue),var(--green),var(--red))"></div></div><div class="bar-val">${featureValues[i].toFixed(3)}</div></div>`).join('')}
+update();
+</script>
+</body>
+</html>
