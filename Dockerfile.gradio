@@ -1,0 +1,18 @@
+# ---- Gradio Obesity Prediction UI ----
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install only the dependencies the Gradio app needs
+RUN pip install --no-cache-dir gradio requests
+
+# Copy the application code
+COPY gradio_app.py .
+
+# The URL of the prediction API (override at runtime with -e)
+ENV PREDICT_API_URL="http://192.168.1.118:8008/predict"
+
+# Gradio default port
+EXPOSE 7860
+
+CMD ["python", "gradio_app.py"]
